@@ -16,7 +16,7 @@
 
 EXE = BriarEngine
 IMGUI_DIR = ./clientApp/imgui
-INC_DIR = -I./clientApp/imgui -I./clientApp/imgui/backends -I./clientApp/src -I./clientApp/glad/KHR -I./clientApp/glad/include
+INC_DIR = -I./clientApp/imgui -I./clientApp/imgui/backends -I./clientApp/src -I./clientApp/glad/KHR -I./clientApp/glad/include -I/usr/local/include -I/opt/local/include -I/opt/homebrew/include -I/opt/homebrew/opt/glm/include/glm
 SRC_DIR = clientApp/src
 GLAD_DIR = ./clientApp/glad/src
 SOURCES = $(SRC_DIR)/main.cpp, $(SRC_DIR)/FrameBuffer.cpp
@@ -98,3 +98,7 @@ $(EXE): $(OBJS)
 
 clean:
 	rm -f $(EXE) $(OBJS)
+
+re: clean all
+
+.PHONY: all clean re
