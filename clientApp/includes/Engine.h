@@ -5,13 +5,18 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
-#include "/opt/homebrew/opt/glm/include/glm/glm.hpp"
-#include "/opt/homebrew/opt/glm/include/glm/gtc/matrix_transform.hpp"
-#include "/opt/homebrew/opt/glm/include/glm/gtc/type_ptr.hpp"
+#include "glm.hpp"
+#include "matrix_transform.hpp"
+#include "type_ptr.hpp"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-// Añade otras dependencias según sea necesario
+#include "glad/glad.h"
+
+struct color
+{
+    GLfloat r, g, b, a;
+};
 
 class Engine
 {
@@ -45,6 +50,14 @@ public:
         glfwMakeContextCurrent(window);
         glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
 
+        glViewport(0, 0, windowWidth, windowHeight);
+
+        // Inicializar GLAD
+        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+        {
+            throw std::runtime_error("Error al inicializar GLAD");
+        }
+
         // Inicializar ImGui
         ImGui::CreateContext();
         ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -56,7 +69,7 @@ public:
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;     // Enable Docking
 
         // Configurar cámara
-        camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+        camera = new Camera(glm::vec3(0.0f, 0.0f, 0.0f));
 
         // Configurar framebuffer
         framebuffer = new FrameBuffer(windowWidth, windowHeight);
@@ -71,12 +84,16 @@ public:
             float currentFrame = glfwGetTime();
             deltaTime = currentFrame - lastFrame;
             lastFrame = currentFrame;
+            glfwPollEvents();
 
             // Procesar entrada
             ProcessInput();
 
             // Renderizar ImGui
             RenderImGui();
+
+            ShaderCreator();
+
             // Renderizar escena
             Render();
 
@@ -103,12 +120,13 @@ private:
     GLFWwindow *window = nullptr;
     Camera *camera = nullptr;
     FrameBuffer *framebuffer = nullptr;
-
+    color clearColor = {0.1f, 0.1f, 0.1f, 1.0f};
     float deltaTime = 0.0f, lastFrame = 0.0f;
+    GLuint shaderProgram;
+    GLuint VAO, VBO;
 
     void ProcessInput()
     {
-        glfwPollEvents();
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
 
@@ -126,58 +144,74 @@ private:
         }
     }
 
-    void Render()
+    void Render();
+
+    void RenderImGui();
+
+    void ShaderCreator()
     {
-        framebuffer->Bind();
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // Definir los shaders
+        const char *vertexShaderSource = "#version 330 core\n"
+                                         "layout (location = 0) in vec3 aPos;\n"
+                                         "void main()\n"
+                                         "{\n"
+                                         "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+                                         "}\0";
+        const char *fragmentShaderSource = "#version 330 core\n"
+                                           "out vec4 FragColor;\n"
+                                           "void main()\n"
+                                           "{\n"
+                                           "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+                                           "}\0";
 
-        // Configurar matrices
-        glm::mat4 projection = glm::perspective(glm::radians(45.0f),
-                                                (float)windowWidth / (float)windowHeight,
-                                                0.1f, 100.0f);
-        glm::mat4 view = camera->GetViewMatrix();
+        // Crear los shaders
+        GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+        glCompileShader(vertexShader);
 
-        // Enviar matrices a los shaders y renderizar
+        GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+        glCompileShader(fragmentShader);
 
-        framebuffer->Unbind();
-    }
+        // Crear el programa de shaders
+        shaderProgram = glCreateProgram();
+        glAttachShader(shaderProgram, vertexShader);
+        glAttachShader(shaderProgram, fragmentShader);
+        glLinkProgram(shaderProgram);
 
-    void RenderImGui()
-    {
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        // Eliminar los shaders
+        glDeleteShader(vertexShader);
+        glDeleteShader(fragmentShader);
 
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-        ImGui::DockSpaceOverViewport();
+        // Vertices coordinates
+        GLfloat vertices[] =
+            {
+                -0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f,  // Lower left corner
+                0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f,   // Lower right corner
+                0.0f, 0.5f * float(sqrt(3)) * 2 / 3, 0.0f // Upper corner
+            };
 
-        // Ventanas ImGui
-        ImGui::Begin("Engine Stats");
-        ImGui::Text("FPS: %.1f", 1.0f / deltaTime);
-        ImGui::End();
+        // Create reference containers for the Vartex Array Object and the Vertex Buffer Object
+        // Generate the VAO and VBO with only 1 object each
+        glGenVertexArrays(1, &VAO);
+        glGenBuffers(1, &VBO);
 
-        ImGui::Begin("Scene");
-        {
-            const float window_width = ImGui::GetContentRegionAvail().x;
-            const float window_height = ImGui::GetContentRegionAvail().y;
-            ImGui::BeginChild("GameRender");
-            std::cout << "Window width: " << window_width << std::endl;
-            std::cout << "Window height: " << window_height << std::endl;
-            framebuffer->RescaleFrameBuffer(window_width, window_height);
-            glViewport(0, 0, (GLsizei)window_width, (GLsizei)window_height);
-            ImGui::Image(
-                (ImTextureID)framebuffer->getFrameTexture(),
-                ImGui::GetContentRegionAvail(),
-                ImVec2(0, 1),
-                ImVec2(1, 0));
-        }
-        ImGui::EndChild();
-        ImGui::End();
+        // Make the VAO the current Vertex Array Object by binding it
+        glBindVertexArray(VAO);
 
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        // Bind the VBO specifying it's a GL_ARRAY_BUFFER
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        // Introduce the vertices into the VBO
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+        // Configure the Vertex Attribute so that OpenGL knows how to read the VBO
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+        // Enable the Vertex Attribute so that OpenGL knows to use it
+        glEnableVertexAttribArray(0);
+
+        // Bind both the VBO and VAO to 0 so that we don't accidentally modify the VAO and VBO we created
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
     }
 
     static void FramebufferSizeCallback(GLFWwindow *window, int width, int height)

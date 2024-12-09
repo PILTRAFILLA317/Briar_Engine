@@ -16,10 +16,10 @@
 
 EXE = BriarEngine
 IMGUI_DIR = ./clientApp/imgui
-INC_DIR = -I./clientApp/imgui -I./clientApp/imgui/backends -I./clientApp/src -I./clientApp/glad/KHR -I./clientApp/glad/include -I/usr/local/include -I/opt/local/include -I/opt/homebrew/include -I/opt/homebrew/opt/glm/include/glm
+INC_DIR = -I./clientApp/includes/ -I./clientApp/imgui -I./clientApp/imgui/backends -I./clientApp/src -I./clientApp/glad/KHR -I./clientApp/glad/include -I/usr/local/include -I/opt/local/include -I/opt/homebrew/include -I/opt/homebrew/opt/glm/include/glm/ -I/opt/homebrew/opt/glm/include/glm/gtc/ -I/opt/homebrew/opt/assimp/include/assimp
 SRC_DIR = clientApp/src
 GLAD_DIR = ./clientApp/glad/src
-SOURCES = $(SRC_DIR)/main.cpp, $(SRC_DIR)/FrameBuffer.cpp
+SOURCES = $(SRC_DIR)/main.cpp, $(SRC_DIR)/FrameBuffer.cpp $(SRC_DIR)/Engine.cpp
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_glfw.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
 SOURCES += $(GLAD_DIR)/glad.c
@@ -55,9 +55,8 @@ endif
 ifeq ($(UNAME_S), Darwin) #APPLE
 	ECHO_MESSAGE = "Mac OS X"
 	LIBS += -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo
-	LIBS += -L/usr/local/lib -L/opt/local/lib -L/opt/homebrew/lib
-	#LIBS += -lglfw3
-	LIBS += -lglfw
+	LIBS += -L/usr/local/lib -L/opt/homebrew/lib
+	LIBS += -lglfw3 -lassimp
 
 	CXXFLAGS += -I/usr/local/include -I/opt/local/include -I/opt/homebrew/include
 	CFLAGS = $(CXXFLAGS)
