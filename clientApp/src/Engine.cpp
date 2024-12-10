@@ -4,18 +4,82 @@
 #include <sstream>
 #include <iostream>
 
-std::string LoadShaderSource(const std::string &filePath)
+void Engine::Init()
 {
-    std::ifstream fileStream(filePath);
-    if (!fileStream.is_open())
+    // Inicialización de GLFW
+    if (!glfwInit())
     {
-        std::cerr << "Error: No se pudo abrir el archivo del shader: " << filePath << std::endl;
-        return "";
+        throw std::runtime_error("Error al inicializar GLFW");
     }
 
-    std::stringstream buffer;
-    buffer << fileStream.rdbuf();
-    return buffer.str();
+    // Tell GLFW what version of OpenGL we are using
+    // In this case we are using OpenGL 3.3
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    // Tell GLFW we are using the CORE profile
+    // So that means we only have the modern functions
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+
+    // Crear ventana
+    window = glfwCreateWindow(windowWidth, windowHeight, windowTitle.c_str(), NULL, NULL);
+    if (!window)
+    {
+        glfwTerminate();
+        throw std::runtime_error("Error al crear la ventana GLFW");
+    }
+
+    glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
+
+    glViewport(0, 0, windowWidth, windowHeight);
+
+    // Inicializar GLAD
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+        throw std::runtime_error("Error al inicializar GLAD");
+    }
+
+    // Inicializar ImGui
+    ImGui::CreateContext();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330");
+
+    ImGuiIO &io = ImGui::GetIO();
+    (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;     // Enable Docking
+
+    // Configurar cámara
+    camera = new Camera(glm::vec3(0.0f, 0.0f, 0.0f));
+
+    // Configurar framebuffer
+    framebuffer = new FrameBuffer(windowWidth, windowHeight);
+    ShaderCreator();
+    std::cout << "Engine inicializado correctamente.\n";
+}
+
+void Engine::Run()
+{
+    while (!glfwWindowShouldClose(window))
+    {
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+        glfwPollEvents();
+
+        // Procesar entrada
+        ProcessInput();
+
+        // Renderizar ImGui
+        RenderImGui();
+        // Renderizar escena
+        Render();
+
+        glfwSwapBuffers(window);
+    }
 }
 
 void Engine::RenderImGui()
@@ -62,10 +126,12 @@ void Engine::Render()
     glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glUseProgram(shaderProgram);
-    glBindVertexArray(VAO);
     // Draw the triangle using the GL_TRIANGLES primitive
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
+    // Activate the shader program
+    shaderProgram.Activate();
+    // Bind the VAO so OpenGL knows to use it
+    VAO1.Bind();
     // Swap the back buffer with the front buffer
     glfwSwapBuffers(window);
     // Take care of all GLFW events
