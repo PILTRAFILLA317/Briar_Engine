@@ -27,10 +27,16 @@ OBJS = $(addsuffix .o, $(basename $(notdir $(SOURCES))))
 UNAME_S := $(shell uname -s)
 LINUX_GL_LIBS = -lGL
 
+##---------------------------------------------------------------------
+
+OBJS_DIR = objs
+OBJS_PATH = $(addprefix $(OBJS_DIR)/, $(OBJS))
+
+##---------------------------------------------------------------------
+
 CXXFLAGS = -std=c++11 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends
 CXXFLAGS += -g -Wall -Wformat -fsanitize=address
 CXXFLAGS += $(INC_DIR)
-LIBS =
 
 ##---------------------------------------------------------------------
 ## OPENGL ES
@@ -74,29 +80,35 @@ endif
 ## BUILD RULES
 ##---------------------------------------------------------------------
 
-%.o:%.cpp
+$(OBJS_DIR)/%.o:%.cpp
+	@mkdir -p $(OBJS_DIR)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-%.o:$(SRC_DIR)/%.cpp
+$(OBJS_DIR)/%.o:$(SRC_DIR)/%.cpp
+	@mkdir -p $(OBJS_DIR)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-%.o:$(GLAD_DIR)/%.c
+$(OBJS_DIR)/%.o:$(GLAD_DIR)/%.c
+	@mkdir -p $(OBJS_DIR)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-%.o:$(IMGUI_DIR)/%.cpp
+$(OBJS_DIR)/%.o:$(IMGUI_DIR)/%.cpp
+	@mkdir -p $(OBJS_DIR)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-%.o:$(IMGUI_DIR)/backends/%.cpp
+$(OBJS_DIR)/%.o:$(IMGUI_DIR)/backends/%.cpp
+	@mkdir -p $(OBJS_DIR)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 all: $(EXE)
 	@echo Build complete for $(ECHO_MESSAGE)
 
-$(EXE): $(OBJS)
+$(EXE): $(OBJS_PATH)
 	$(CXX) -o $@ $^ $(CXXFLAGS) $(LIBS)
 
 clean:
-	rm -f $(EXE) $(OBJS)
+	rm -f $(EXE)
+	@rm -rf objs/
 
 re: clean all
 
