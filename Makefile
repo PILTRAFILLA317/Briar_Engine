@@ -15,11 +15,13 @@
 #CXX = clang++
 
 EXE = BriarEngine
-IMGUI_DIR = ./clientApp/imgui
-INC_DIR = -I./clientApp/includes/ -I./clientApp/imgui -I./clientApp/imgui/backends -I./clientApp/src -I./clientApp/glad/KHR -I./clientApp/glad/include -I/usr/local/include -I/opt/local/include -I/opt/homebrew/include -I/opt/homebrew/opt/glm/include/glm/ -I/opt/homebrew/opt/glm/include/glm/gtc/ -I/opt/homebrew/opt/assimp/include/assimp
-SRC_DIR = clientApp/src
-GLAD_DIR = ./clientApp/glad/src
-SOURCES = $(SRC_DIR)/main.cpp, $(SRC_DIR)/FrameBuffer.cpp $(SRC_DIR)/Engine.cpp $(SRC_DIR)/VBO.cpp $(SRC_DIR)/VAO.cpp $(SRC_DIR)/EBO.cpp $(SRC_DIR)/ShaderClass.cpp 
+IMGUI_DIR = ./Engine/imgui
+INC_DIR = -I./Engine/includes/ -I./Engine/imgui -I./Engine/imgui/backends -I./Engine/src -I./Engine/glad/KHR -I./Engine/glad/include -I/usr/local/include -I/opt/local/include -I/opt/homebrew/include -I/opt/homebrew/opt/glm/include/glm/ -I/opt/homebrew/opt/glm/include/glm/gtc/ -I/opt/homebrew/opt/assimp/include/assimp -I./Engine/stb
+SRC_DIR = Engine/src
+STB_DIR = Engine/stb
+GLAD_DIR = ./Engine/glad/src
+SOURCES += $(wildcard $(SRC_DIR)/*.cpp)
+SOURCES += $(wildcard $(STB_DIR)/*.cpp)
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_glfw.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
 SOURCES += $(GLAD_DIR)/glad.c
@@ -34,7 +36,7 @@ OBJS_PATH = $(addprefix $(OBJS_DIR)/, $(OBJS))
 
 ##---------------------------------------------------------------------
 
-CXXFLAGS = -std=c++11 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends
+CXXFLAGS = -std=c++20 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends
 CXXFLAGS += -g -Wall -Wformat -fsanitize=address
 CXXFLAGS += $(INC_DIR)
 
@@ -88,6 +90,10 @@ $(OBJS_DIR)/%.o:$(SRC_DIR)/%.cpp
 	@mkdir -p $(OBJS_DIR)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
+$(OBJS_DIR)/%.o:$(STB_DIR)/%.cpp
+	@mkdir -p $(OBJS_DIR)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
 $(OBJS_DIR)/%.o:$(GLAD_DIR)/%.c
 	@mkdir -p $(OBJS_DIR)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
@@ -107,7 +113,7 @@ $(EXE): $(OBJS_PATH)
 	$(CXX) -o $@ $^ $(CXXFLAGS) $(LIBS)
 
 clean:
-	rm -f $(EXE)
+	@rm -f $(EXE)
 	@rm -rf objs/
 
 re: clean all
