@@ -123,16 +123,21 @@ void Engine::RenderImGui()
     ImGui::Text("FPS: %.1f", 1.0f / deltaTime);
     ImGui::Text("Camera Position: (%.1f, %.1f, %.1f)",
                 camera->Position.x, camera->Position.y, camera->Position.z);
+    ImGui::Text("Camera Orientation: (%.1f, %.1f, %.1f)",
+                camera->Orientation.x, camera->Orientation.y, camera->Orientation.z);
+    ImGui::Text("Camera On: %s", cameraOn ? "true" : "false");
     ImGui::ColorEdit3("Color", (float *)&clearColor);
     ImGui::End();
 
     ImGui::Begin("Scene");
     {
+        if (ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows) && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+            cameraOn = true; // Activa la cámara
         window_width = ImGui::GetContentRegionAvail().x;
         window_height = ImGui::GetContentRegionAvail().y;
         ImGui::BeginChild("GameRender");
-        std::cout << "Window width: " << window_width << std::endl;
-        std::cout << "Window height: " << window_height << std::endl;
+        // std::cout << "Window width: " << window_width << std::endl;
+        // std::cout << "Window height: " << window_height << std::endl;
         framebuffer->RescaleFrameBuffer(window_width, window_height);
         glViewport(0, 0, (GLsizei)window_width, (GLsizei)window_height);
         ImGui::Image(

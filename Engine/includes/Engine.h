@@ -94,12 +94,18 @@ private:
     float window_width = 0.0f;
     float window_height = 0.0f;
 
+    bool cameraOn = false;
+
     void ProcessInput()
     {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
 
-        camera->Inputs(window);
+        if (cameraOn)
+            camera->Inputs(window);
+
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
+            cameraOn = false;
     }
 
     void Render();
