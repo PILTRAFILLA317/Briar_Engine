@@ -70,27 +70,78 @@ private:
     EBO EBO1;
     VBO VBO1;
     VAO VAO1;
+    VAO lightVAO;
+    VBO lightVBO;
+    EBO lightEBO;
     Shader shaderProgram;
+    Shader lightShader;
     GLuint uniID;
     Texture brickTex;
     // Vertices coordinates
-    GLfloat vertices[40] =
-        { //     COORDINATES     /        COLORS      /   TexCoord  //
-            -0.5f, 0.0f, 0.5f, 0.83f, 0.70f, 0.44f, 0.0f, 0.0f,
-            -0.5f, 0.0f, -0.5f, 0.83f, 0.70f, 0.44f, 5.0f, 0.0f,
-            0.5f, 0.0f, -0.5f, 0.83f, 0.70f, 0.44f, 0.0f, 0.0f,
-            0.5f, 0.0f, 0.5f, 0.83f, 0.70f, 0.44f, 5.0f, 0.0f,
-            0.0f, 0.8f, 0.0f, 0.92f, 0.86f, 0.76f, 2.5f, 5.0f};
+
+    // Vertices coordinates
+    GLfloat vertices[176] =
+        {
+            //     COORDINATES     /        COLORS          /    TexCoord   /        NORMALS       //
+            -0.5f, 0.0f, 0.5f, 0.83f, 0.70f, 0.44f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f,  // Bottom side
+            -0.5f, 0.0f, -0.5f, 0.83f, 0.70f, 0.44f, 0.0f, 5.0f, 0.0f, -1.0f, 0.0f, // Bottom side
+            0.5f, 0.0f, -0.5f, 0.83f, 0.70f, 0.44f, 5.0f, 5.0f, 0.0f, -1.0f, 0.0f,  // Bottom side
+            0.5f, 0.0f, 0.5f, 0.83f, 0.70f, 0.44f, 5.0f, 0.0f, 0.0f, -1.0f, 0.0f,   // Bottom side
+
+            -0.5f, 0.0f, 0.5f, 0.83f, 0.70f, 0.44f, 0.0f, 0.0f, -0.8f, 0.5f, 0.0f,  // Left Side
+            -0.5f, 0.0f, -0.5f, 0.83f, 0.70f, 0.44f, 5.0f, 0.0f, -0.8f, 0.5f, 0.0f, // Left Side
+            0.0f, 0.8f, 0.0f, 0.92f, 0.86f, 0.76f, 2.5f, 5.0f, -0.8f, 0.5f, 0.0f,   // Left Side
+
+            -0.5f, 0.0f, -0.5f, 0.83f, 0.70f, 0.44f, 5.0f, 0.0f, 0.0f, 0.5f, -0.8f, // Non-facing side
+            0.5f, 0.0f, -0.5f, 0.83f, 0.70f, 0.44f, 0.0f, 0.0f, 0.0f, 0.5f, -0.8f,  // Non-facing side
+            0.0f, 0.8f, 0.0f, 0.92f, 0.86f, 0.76f, 2.5f, 5.0f, 0.0f, 0.5f, -0.8f,   // Non-facing side
+
+            0.5f, 0.0f, -0.5f, 0.83f, 0.70f, 0.44f, 0.0f, 0.0f, 0.8f, 0.5f, 0.0f, // Right side
+            0.5f, 0.0f, 0.5f, 0.83f, 0.70f, 0.44f, 5.0f, 0.0f, 0.8f, 0.5f, 0.0f,  // Right side
+            0.0f, 0.8f, 0.0f, 0.92f, 0.86f, 0.76f, 2.5f, 5.0f, 0.8f, 0.5f, 0.0f,  // Right side
+
+            0.5f, 0.0f, 0.5f, 0.83f, 0.70f, 0.44f, 5.0f, 0.0f, 0.0f, 0.5f, 0.8f,  // Facing side
+            -0.5f, 0.0f, 0.5f, 0.83f, 0.70f, 0.44f, 0.0f, 0.0f, 0.0f, 0.5f, 0.8f, // Facing side
+            0.0f, 0.8f, 0.0f, 0.92f, 0.86f, 0.76f, 2.5f, 5.0f, 0.0f, 0.5f, 0.8f   // Facing side
+    };
 
     // Indices for vertices order
     GLuint indices[18] =
         {
+            0, 1, 2,    // Bottom side
+            0, 2, 3,    // Bottom side
+            4, 6, 5,    // Left side
+            7, 9, 8,    // Non-facing side
+            10, 12, 11, // Right side
+            13, 15, 14  // Facing side
+    };
+
+    GLfloat lightVertices[24] =
+        { //     COORDINATES     //
+            -0.1f, -0.1f, 0.1f,
+            -0.1f, -0.1f, -0.1f,
+            0.1f, -0.1f, -0.1f,
+            0.1f, -0.1f, 0.1f,
+            -0.1f, 0.1f, 0.1f,
+            -0.1f, 0.1f, -0.1f,
+            0.1f, 0.1f, -0.1f,
+            0.1f, 0.1f, 0.1f};
+
+    GLuint lightIndices[36] =
+        {
             0, 1, 2,
             0, 2, 3,
-            0, 1, 4,
-            1, 2, 4,
-            2, 3, 4,
-            3, 0, 4};
+            0, 4, 7,
+            0, 7, 3,
+            3, 7, 6,
+            3, 6, 2,
+            2, 6, 5,
+            2, 5, 1,
+            1, 5, 4,
+            1, 4, 0,
+            4, 5, 6,
+            4, 6, 7};
+
     float window_width = 0.0f;
     float window_height = 0.0f;
 
@@ -104,7 +155,7 @@ private:
         if (cameraOn)
             camera->Inputs(window);
 
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE)
             cameraOn = false;
     }
 

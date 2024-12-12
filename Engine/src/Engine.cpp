@@ -15,13 +15,47 @@ void Engine::ShaderCreator()
     EBO1 = EBO(indices, sizeof(indices));
 
     // Links VBO to VAO
-    VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 8 * sizeof(float), (void *)0);
-    VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 8 * sizeof(float), (void *)(3 * sizeof(float)));
-    VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 8 * sizeof(float), (void *)(6 * sizeof(float)));
+    VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 11 * sizeof(float), (void *)0);
+    VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 11 * sizeof(float), (void *)(3 * sizeof(float)));
+    VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 11 * sizeof(float), (void *)(6 * sizeof(float)));
+    VAO1.LinkAttrib(VBO1, 3, 3, GL_FLOAT, 11 * sizeof(float), (void *)(8 * sizeof(float)));
     // Unbind all to prevent accidentally modifying them
     VAO1.Unbind();
     VBO1.Unbind();
     EBO1.Unbind();
+
+    // Shader for light cube
+    lightShader = Shader("assets/shaders/light_vert.glsl", "assets/shaders/light_frag.glsl");
+    // Generates Vertex Array Object and binds it
+    lightVAO.Init();
+    lightVAO.Bind();
+    // Generates Vertex Buffer Object and links it to vertices
+    lightVBO = VBO (lightVertices, sizeof(lightVertices));
+    // Generates Element Buffer Object and links it to indices
+    lightEBO = EBO (lightIndices, sizeof(lightIndices));
+    // Links VBO attributes such as coordinates and colors to VAO
+    lightVAO.LinkAttrib(lightVBO, 0, 3, GL_FLOAT, 3 * sizeof(float), (void *)0);
+    // Unbind all to prevent accidentally modifying them
+    lightVAO.Unbind();
+    lightVBO.Unbind();
+    lightEBO.Unbind();
+
+    glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
+    glm::mat4 lightModel = glm::mat4(1.0f);
+    lightModel = glm::translate(lightModel, lightPos);
+
+    glm::vec3 pyramidPos = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::mat4 pyramidModel = glm::mat4(1.0f);
+    pyramidModel = glm::translate(pyramidModel, pyramidPos);
+
+    lightShader.Activate();
+    glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
+    glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+    shaderProgram.Activate();
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(pyramidModel));
+    glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+    glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
     std::string parentDir = (fs::current_path()).string();
     printf("Parent directory: %s\n", parentDir.c_str());
@@ -131,8 +165,8 @@ void Engine::RenderImGui()
 
     ImGui::Begin("Scene");
     {
-        if (ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows) && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-            cameraOn = true; // Activa la cámara
+        if (ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows) && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+        cameraOn = true; // Activa la cámara
         window_width = ImGui::GetContentRegionAvail().x;
         window_height = ImGui::GetContentRegionAvail().y;
         ImGui::BeginChild("GameRender");
@@ -159,10 +193,14 @@ void Engine::Render()
 
     glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    shaderProgram.Activate();
 
     // Camera
-    camera->Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");
+    camera->updateMatrix(45.0f, 0.1f, 100.0f);
+
+    shaderProgram.Activate();
+    glUniform3f(glGetUniformLocation(shaderProgram.ID, "camPos"), camera->Position.x, camera->Position.y, camera->Position.z);
+    // Export the camMatrix to the Vertex Shader of the pyramid
+    camera->Matrix(shaderProgram, "camMatrix");
 
     // Binds texture so that is appears in rendering
     brickTex.Bind();
@@ -170,6 +208,16 @@ void Engine::Render()
     VAO1.Bind();
     // Draw primitives, number of indices, datatype of indices, index of indices
     glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
+
+    // Tells OpenGL which Shader Program we want to use
+    lightShader.Activate();
+    // Export the camMatrix to the Vertex Shader of the light cube
+    camera->Matrix(lightShader, "camMatrix");
+    // Bind the VAO so OpenGL knows to use it
+    lightVAO.Bind();
+    // Draw primitives, number of indices, datatype of indices, index of indices
+    glDrawElements(GL_TRIANGLES, sizeof(lightIndices) / sizeof(int), GL_UNSIGNED_INT, 0);
+
     // Swap the back buffer with the front buffer
     glfwSwapBuffers(window);
     // Take care of all GLFW events
