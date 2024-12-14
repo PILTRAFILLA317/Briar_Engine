@@ -30,9 +30,9 @@ void Engine::ShaderCreator()
     lightVAO.Init();
     lightVAO.Bind();
     // Generates Vertex Buffer Object and links it to vertices
-    lightVBO = VBO (lightVertices, sizeof(lightVertices));
+    lightVBO = VBO(lightVertices, sizeof(lightVertices));
     // Generates Element Buffer Object and links it to indices
-    lightEBO = EBO (lightIndices, sizeof(lightIndices));
+    lightEBO = EBO(lightIndices, sizeof(lightIndices));
     // Links VBO attributes such as coordinates and colors to VAO
     lightVAO.LinkAttrib(lightVBO, 0, 3, GL_FLOAT, 3 * sizeof(float), (void *)0);
     // Unbind all to prevent accidentally modifying them
@@ -63,9 +63,10 @@ void Engine::ShaderCreator()
     printf("Texture path: %s\n", texPath.c_str());
 
     // Texture
-    brickTex = Texture((parentDir + texPath + "brick2.png").c_str(), GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-    printf("Texture path: %s\n", (parentDir + texPath + "brick2.png").c_str());
-    brickTex.texUnit(shaderProgram, "tex0", 0);
+    plankTex = Texture((parentDir + texPath + "planks.png").c_str(), GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE);
+	plankTex.texUnit(shaderProgram, "tex0", 0);
+	planksSpec = Texture((parentDir + texPath + "planksSpec.png").c_str(), GL_TEXTURE_2D, 1, GL_RED, GL_UNSIGNED_BYTE);
+	planksSpec.texUnit(shaderProgram, "tex1", 1);
     glEnable(GL_DEPTH_TEST);
 }
 
@@ -166,7 +167,7 @@ void Engine::RenderImGui()
     ImGui::Begin("Scene");
     {
         if (ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows) && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
-        cameraOn = true; // Activa la cámara
+            cameraOn = true; // Activa la cámara
         window_width = ImGui::GetContentRegionAvail().x;
         window_height = ImGui::GetContentRegionAvail().y;
         ImGui::BeginChild("GameRender");
@@ -203,7 +204,8 @@ void Engine::Render()
     camera->Matrix(shaderProgram, "camMatrix");
 
     // Binds texture so that is appears in rendering
-    brickTex.Bind();
+    plankTex.Bind();
+    planksSpec.Bind();
     // Bind the VAO so OpenGL knows to use it
     VAO1.Bind();
     // Draw primitives, number of indices, datatype of indices, index of indices

@@ -10,10 +10,9 @@ class Texture
 public:
 	GLuint ID;
 	GLenum type;
+	GLuint unit;
 
-	// Constructor that generates a Texture ID
-	Texture(const char* image, GLenum texType, GLenum slot, GLenum format, GLenum pixelType);
-	// Default constructor
+	Texture(const char* image, GLenum texType, GLuint slot, GLenum format, GLenum pixelType);
 	Texture() {}
 
 	// Assigns a texture unit to a texture
