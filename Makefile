@@ -16,7 +16,7 @@
 
 EXE = BriarEngine
 IMGUI_DIR = ./Engine/imgui
-INC_DIR = -I./Engine/includes/ -I./Engine/imgui -I./Engine/imgui/backends -I./Engine/src -I./Engine/glad/KHR -I./Engine/glad/include -I/usr/local/include -I/opt/local/include -I/opt/homebrew/include -I/opt/homebrew/opt/glm/include/glm/ -I/opt/homebrew/opt/glm/include/glm/gtc/ -I/opt/homebrew/opt/assimp/include/assimp -I./Engine/stb
+INC_DIR = -I./Engine/includes/ -I./Engine/imgui -I./Engine/imgui/backends -I./Engine/src -I./Engine/glad/KHR -I./Engine/glad/include -I/usr/local/include -I/opt/local/include -I/opt/homebrew/include -I/opt/homebrew/opt/glm/include/glm/ -I/opt/homebrew/opt/glm/include/glm/gtc/ -I/opt/homebrew/opt/assimp/include/assimp -I./Engine/stb -I./Engine/json
 SRC_DIR = Engine/src
 STB_DIR = Engine/stb
 GLAD_DIR = ./Engine/glad/src
