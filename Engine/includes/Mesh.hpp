@@ -6,18 +6,21 @@
 #include "VAO.hpp"
 #include "EBO.hpp"
 #include "Texture.hpp"
+struct SubMesh
+{
+    std::vector<Vertex> vertices;
+    std::vector<GLuint> indices;
+    Texture texture; // Cada sub-mesh tiene una textura asociada
+    VAO VAO;         // Cada sub-mesh tiene su propio VAO
+};
 
 class Mesh
 {
 public:
-    std::vector<Vertex> vertices;
-    std::vector<GLuint> indices;
-    std::vector<Texture> textures;
-    // Store VAO in public so it can be used in the Draw function
-    VAO VAO;
+    std::vector<SubMesh> subMeshes;
 
-    // Initializes the mesh
-    Mesh(std::vector<Vertex> &vertices, std::vector<GLuint> &indices, std::vector<Texture> &textures);
+    // Constructor
+    Mesh(std::vector<SubMesh> &subMeshes);
     Mesh()
     {
     }

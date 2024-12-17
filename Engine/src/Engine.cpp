@@ -35,7 +35,10 @@ void Engine::ShaderCreator()
     mesh = OBJLoader::LoadOBJ(parentDir + modelPath);
     // mesh = OBJLoader::LoadOBJWithTinyOBJ(parentDir + modelPath);
 
-    mesh.textures.push_back(brickTex);
+    // mesh.textures.push_back(brickTex);
+
+    mesh.subMeshes[0].texture = brickTex;
+    mesh.subMeshes[1].texture = brickTex;
 
     // Texture
     brickTex.texUnit(shaderProgram, "tex0", 0);
