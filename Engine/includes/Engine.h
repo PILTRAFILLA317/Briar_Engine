@@ -19,8 +19,8 @@ namespace fs = std::filesystem;
 #include <string>
 
 #include "Mesh.hpp"
-#include "Model.hpp"
 #include "Object.hpp"
+#include "OBJLoader.hpp"
 
 struct color
 {
@@ -66,7 +66,7 @@ private:
     GLuint uniID;
     float window_width = 0.0f;
     float window_height = 0.0f;
-    Model model;
+    Mesh mesh;
 
     std::vector<Object*> sceneObjects;
     Object* selectedObject = nullptr;  // Objeto actualmente seleccionado

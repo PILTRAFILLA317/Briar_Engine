@@ -20,25 +20,27 @@ void Engine::ShaderCreator()
 {
     std::string parentDir = (fs::current_path()).string();
     printf("Parent directory: %s\n", parentDir.c_str());
-    std::string modelPath = "/assets/models/sword/scene.gltf";
+    std::string modelPath = "/assets/models/cube.obj";
     printf("Model path: %s\n", modelPath.c_str());
     std::string shaderPath = "/assets/shaders/";
 
+    std::string texPath = "/assets/textures/";
+    Texture brickTex((parentDir + texPath + "brick2.png").c_str(), GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
+
+    printf("Texture path: %s\n", (parentDir + texPath + "brick2.png").c_str());
     shaderProgram = Shader((parentDir + shaderPath + "vertex_shader.glsl"), (parentDir + shaderPath + "fragment_shader.glsl"));
-
-    glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
-    glm::mat4 lightModel = glm::mat4(1.0f);
-    lightModel = glm::translate(lightModel, lightPos);
-
-    shaderProgram.Activate();
-    glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-    glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
-    glEnable(GL_DEPTH_TEST);
 
     camera = new Camera(windowWidth, windowHeight, glm::vec3(0.0f, 0.0f, 2.0f));
 
-    model = Model((parentDir + modelPath).c_str());
+    mesh = OBJLoader::LoadOBJ(parentDir + modelPath);
+
+    mesh.textures.push_back(brickTex);
+
+    // Texture
+    brickTex.texUnit(shaderProgram, "tex0", 0);
+
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEBUG_OUTPUT);
 }
 
 void Engine::Init()
@@ -137,8 +139,8 @@ void Engine::RenderUI()
     RenderObjectList();
     RenderPropertiesWindow();
     RenderFileSystem();
-    RenderScene();
     RenderGame();
+    RenderScene();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -155,7 +157,7 @@ void Engine::Render()
     camera->updateMatrix(45.0f, 0.1f, 100.0f);
 
     // Renderizar modelo
-    model.Draw(shaderProgram, *camera);
+    mesh.Draw(shaderProgram, *camera);
 
     // Take care of all GLFW events
     glfwPollEvents();
