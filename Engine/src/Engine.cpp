@@ -20,7 +20,7 @@ void Engine::ShaderCreator()
 {
     std::string parentDir = (fs::current_path()).string();
     printf("Parent directory: %s\n", parentDir.c_str());
-    std::string modelPath = "/assets/models/cube.obj";
+    std::string modelPath = "/assets/models/plant/plant.obj";
     printf("Model path: %s\n", modelPath.c_str());
     std::string shaderPath = "/assets/shaders/";
 
@@ -33,6 +33,7 @@ void Engine::ShaderCreator()
     camera = new Camera(windowWidth, windowHeight, glm::vec3(0.0f, 0.0f, 2.0f));
 
     mesh = OBJLoader::LoadOBJ(parentDir + modelPath);
+    // mesh = OBJLoader::LoadOBJWithTinyOBJ(parentDir + modelPath);
 
     mesh.textures.push_back(brickTex);
 
@@ -41,6 +42,7 @@ void Engine::ShaderCreator()
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_DEBUG_OUTPUT);
+    glDisable(GL_CULL_FACE);
 }
 
 void Engine::Init()
