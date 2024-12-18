@@ -6,6 +6,7 @@
 #include "VAO.hpp"
 #include "EBO.hpp"
 #include "Texture.hpp"
+#include "Object.hpp"
 struct SubMesh
 {
     std::vector<Vertex> vertices;
@@ -14,23 +15,19 @@ struct SubMesh
     VAO VAO;         // Cada sub-mesh tiene su propio VAO
 };
 
-class Mesh
+class Mesh : public Object
 {
 public:
     std::vector<SubMesh> subMeshes;
 
     // Constructor
-    Mesh(std::vector<SubMesh> &subMeshes);
-    Mesh()
-    {
-    }
+    Mesh(const std::string &name, const std::vector<SubMesh> &subMeshes)
+        : Object(name), subMeshes(subMeshes) {}
+
+    Mesh(const std::string &name = "Unnamed") : Object(name) {}
 
     // Draws the mesh
     void Draw(
         Shader &shader,
-        Camera &camera,
-        glm::mat4 matrix = glm::mat4(1.0f),
-        glm::vec3 translation = glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
-        glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f));
+        Camera &camera) override;
 };

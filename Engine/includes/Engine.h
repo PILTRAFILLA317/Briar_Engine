@@ -45,8 +45,6 @@ public:
         ImGui::DestroyContext();
 
         shaderProgram.Delete();
-        lightShader.Delete();
-
         glfwDestroyWindow(window);
         glfwTerminate();
         delete camera;
@@ -54,6 +52,7 @@ public:
     }
 
 private:
+    std::string basePath;
     int windowWidth, windowHeight;
     std::string windowTitle;
     GLFWwindow *window = nullptr;
@@ -61,15 +60,19 @@ private:
     FrameBuffer *framebuffer = nullptr;
     color clearColor = {0.1f, 0.1f, 0.1f, 1.0f};
     float deltaTime = 0.0f, lastFrame = 0.0f;
+
+    ImTextureID LoadTextureFromFile(const std::string &filename);
+
+    ImTextureID directoryIcon;
+    ImTextureID fileIcon;
+
     Shader shaderProgram;
-    Shader lightShader;
-    GLuint uniID;
     float window_width = 0.0f;
     float window_height = 0.0f;
-    Mesh mesh;
 
-    std::vector<Object*> sceneObjects;
-    Object* selectedObject = nullptr;  // Objeto actualmente seleccionado
+    std::vector<std::shared_ptr<Object>> sceneObjects;
+
+    std::shared_ptr<Object> selectedObject = nullptr;
 
     bool cameraOn = false;
 
@@ -83,6 +86,16 @@ private:
     void RenderFileSystem();
     void RenderScene();
     void RenderGame();
+
+    // void CreateObject(const std::string& name, const std::string& path);
+
+    void CreatePlane();
+    void AddOBJModel(const std::string &name, const std::string &path);
+
+    void AddObject(std::shared_ptr<Object> object)
+    {
+        sceneObjects.push_back(std::shared_ptr<Object>(object));
+    }
 
     void ShaderCreator();
 

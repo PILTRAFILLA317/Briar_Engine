@@ -19,29 +19,11 @@ void Engine::ProcessInput()
 void Engine::ShaderCreator()
 {
     std::string parentDir = (fs::current_path()).string();
-    printf("Parent directory: %s\n", parentDir.c_str());
-    std::string modelPath = "/assets/models/plant/plant.obj";
-    printf("Model path: %s\n", modelPath.c_str());
     std::string shaderPath = "/assets/shaders/";
 
-    std::string texPath = "/assets/textures/";
-    Texture brickTex((parentDir + texPath + "brick2.png").c_str(), GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
-
-    printf("Texture path: %s\n", (parentDir + texPath + "brick2.png").c_str());
     shaderProgram = Shader((parentDir + shaderPath + "vertex_shader.glsl"), (parentDir + shaderPath + "fragment_shader.glsl"));
 
     camera = new Camera(windowWidth, windowHeight, glm::vec3(0.0f, 0.0f, 2.0f));
-
-    mesh = OBJLoader::LoadOBJ(parentDir + modelPath);
-    // mesh = OBJLoader::LoadOBJWithTinyOBJ(parentDir + modelPath);
-
-    // mesh.textures.push_back(brickTex);
-
-    mesh.subMeshes[0].texture = brickTex;
-    mesh.subMeshes[1].texture = brickTex;
-
-    // Texture
-    brickTex.texUnit(shaderProgram, "tex0", 0);
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_DEBUG_OUTPUT);
@@ -100,6 +82,10 @@ void Engine::Init()
     // camera = new Camera(glm::vec3(0.0f, 0.0f, 0.0f));
 
     // Configurar framebuffer
+
+    basePath = fs::current_path().string();
+    directoryIcon = LoadTextureFromFile(basePath + "/assets/textures/folder.png");
+    fileIcon = LoadTextureFromFile(basePath + "/assets/textures/file.png");
     framebuffer = new FrameBuffer(windowWidth, windowHeight);
     ShaderCreator();
     std::cout << "Engine inicializado correctamente.\n";
@@ -162,7 +148,13 @@ void Engine::Render()
     camera->updateMatrix(45.0f, 0.1f, 100.0f);
 
     // Renderizar modelo
-    mesh.Draw(shaderProgram, *camera);
+    // mesh.Draw(shaderProgram, *camera);
+    for (auto &object : sceneObjects)
+    {
+        printf("Drawing object %s\n", object->name.c_str());
+        printf("Object address: %p, name: %s\n", object.get(), object->name.c_str());
+        object->Draw(shaderProgram, *camera);
+    }
 
     // Take care of all GLFW events
     glfwPollEvents();

@@ -4,6 +4,63 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <algorithm>
+
+struct FileEntry
+{
+    std::string name;
+    bool is_directory;
+};
+
+std::string TruncateText(const std::string& text, size_t maxChars) {
+    if (text.length() <= maxChars) {
+        return text;
+    }
+    return text.substr(0, maxChars - 3) + "..."; // Truncar y añadir '...'
+}
+
+std::vector<FileEntry> ListDirectory(const std::string &path)
+{
+    std::vector<FileEntry> entries;
+    for (const auto &entry : fs::directory_iterator(path))
+    {
+        entries.push_back({entry.path().filename().string(),
+                           entry.is_directory()});
+    }
+    return entries;
+}
+
+ImTextureID Engine::LoadTextureFromFile(const std::string &filename)
+{
+    // Cargar la imagen desde el archivo
+    int width, height, channels;
+    unsigned char *data = stbi_load(filename.c_str(), &width, &height, &channels, 4);
+    if (!data)
+    {
+        std::cerr << "Failed to load texture: " << filename << std::endl;
+        return nullptr;
+    }
+
+    // Crear una textura OpenGL
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+    // Configurar los parámetros de la textura
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // Subir los datos de la imagen a la textura
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    // Liberar la imagen cargada
+    stbi_image_free(data);
+
+    return (ImTextureID)(intptr_t)textureID;
+}
 
 void Engine::RenderObjectList()
 {
@@ -86,22 +143,61 @@ void Engine::RenderGame()
 
 void Engine::RenderFileSystem()
 {
-    ImGui::Begin("File System"); // Ventana del sistema de archivos
+    static std::string currentPath = basePath;
+    ImGui::Begin("File System");
 
-    // Simulación de recursos (puedes implementar un explorador real más adelante)
-    if (ImGui::TreeNode("Available Resources"))
+    // Botón para volver al directorio padre.
+    if (ImGui::Button("Up") && currentPath != basePath)
     {
-        if (ImGui::Button("Add Cube"))
+        currentPath = fs::path(currentPath).parent_path().string();
+    }
+
+    ImGui::Text("Current Path: %s", currentPath.c_str());
+    ImGui::Separator();
+
+    // Listar archivos y carpetas.
+    auto entries = ListDirectory(currentPath);
+
+    // Configurar tamaño de icono
+    constexpr float iconSize = 50.0f; // Tamaño de los iconos (ancho y alto)
+    constexpr float padding = 10.0f;  // Espaciado entre elementos
+    constexpr size_t maxTextLength = 8;
+
+    // Calcular número máximo de elementos por fila según el ancho de la ventana
+    float fswindowWidth = ImGui::GetContentRegionAvail().x; // Ancho disponible
+    size_t itemsPerRow = static_cast<size_t>(fswindowWidth / (iconSize + padding));
+
+    if (itemsPerRow < 1)
+        itemsPerRow = 1; // Asegurar al menos 1 por fila
+
+    size_t itemIndex = 0; // Índice del elemento actual
+    for (const auto &entry : entries)
+    {
+        ImGui::BeginGroup(); // Agrupar botón e texto juntos
+
+        // Dibujar el botón (icono)
+        if (entry.is_directory)
+            ImGui::ImageButton((ImTextureID)directoryIcon, ImVec2(iconSize, iconSize));
+        else
+            ImGui::ImageButton((ImTextureID)fileIcon, ImVec2(iconSize, iconSize));
+
+        // Detectar clic en el botón
+        if (ImGui::IsItemClicked() && entry.is_directory)
         {
-            // Añadir un cubo a la escena
-            // AddObjectToScene(new Object("Cube"));
+            currentPath = fs::path(currentPath) / entry.name;
         }
-        if (ImGui::Button("Add Sphere"))
+
+        ImGui::Dummy(ImVec2(0.0f, 0.5f)); // Espacio entre el botón y el texto
+        std::string truncatedName = TruncateText(entry.name, maxTextLength);
+        ImGui::TextWrapped("%s", truncatedName.c_str());
+
+        ImGui::EndGroup();
+
+        // Alinear en la misma fila si no es el último de la fila
+        if (++itemIndex % itemsPerRow != 0)
         {
-            // Añadir una esfera a la escena
-            // AddObjectToScene(new Object("Sphere"));
+            ImGui::SameLine(0.0f, padding);
         }
-        ImGui::TreePop();
     }
 
     ImGui::End();

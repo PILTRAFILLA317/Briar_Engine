@@ -4,41 +4,6 @@
 
 #include "glm/gtx/string_cast.hpp"
 
-// Mesh OBJLoader::LoadOBJWithTinyOBJ(const std::string &filePath)
-// {
-//     std::vector<Vertex> vertices;
-//     std::vector<GLuint> indices;
-//     std::vector<Texture> textures; // Optional, not loaded here but can be extended.
-
-//     tinyobj::attrib_t attrib;
-//     std::vector<tinyobj::shape_t> shapes;
-//     std::vector<tinyobj::material_t> materials;
-
-//     std::string warn, err;
-//     if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filePath.c_str()))
-//     {
-//         std::cerr << warn << std::endl;
-//         std::cerr << err << std::endl;
-//         return Mesh(vertices, indices, textures);
-//     }
-
-//     for (const auto &shape : shapes)
-//     {
-//         for (const auto &index : shape.mesh.indices)
-//         {
-//             Vertex vertex = {};
-//             vertex.position = {attrib.vertices[3 * index.vertex_index + 0], attrib.vertices[3 * index.vertex_index + 1], attrib.vertices[3 * index.vertex_index + 2]};
-//             vertex.texUV = {attrib.texcoords[2 * index.texcoord_index + 0], 1.0f - attrib.texcoords[2 * index.texcoord_index + 1]};
-//             vertex.normal = {attrib.normals[3 * index.normal_index + 0], attrib.normals[3 * index.normal_index + 1], attrib.normals[3 * index.normal_index + 2]};
-//             vertices.push_back(vertex);
-//             indices.push_back(static_cast<GLuint>(indices.size()));
-//         }
-//     }
-
-//     printf("Loaded mesh with %lu vertices and %lu indices\n", vertices.size(), indices.size());
-//     return Mesh(vertices, indices, textures);
-// }
-
 Mesh OBJLoader::LoadOBJ(const std::string &filePath)
 {
     std::vector<SubMesh> subMeshes;
@@ -53,7 +18,7 @@ Mesh OBJLoader::LoadOBJ(const std::string &filePath)
     if (!file.is_open())
     {
         std::cerr << "Failed to open OBJ file: " << filePath << std::endl;
-        return Mesh(subMeshes); // Devuelve un Mesh vacío
+        return Mesh("none", subMeshes); // Devuelve un Mesh vacío
     }
 
     std::string line;
@@ -191,5 +156,5 @@ Mesh OBJLoader::LoadOBJ(const std::string &filePath)
     {
         std::cout << "SubMesh " << i << " vertices: " << subMeshes[i].vertices.size() << " indices: " << subMeshes[i].indices.size() << std::endl;
     }
-    return Mesh(subMeshes); // Devuelve el objeto Mesh construido
+    return Mesh("EEEEEONO", subMeshes); // Devuelve el objeto Mesh construido
 }
