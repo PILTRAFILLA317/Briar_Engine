@@ -2,13 +2,28 @@
 #include <filesystem>
 namespace fs = std::filesystem;
 
-// Mesh::Mesh(std::vector<SubMesh> &subMeshes)
-// {
-//     Mesh::subMeshes = subMeshes;
-// }
+void SubMesh::Draw(Shader &shader, Camera &camera)
+{
+    int isTextured = glGetUniformLocation(shader.ID, "isTextured");
+    shader.Activate();
+    if (this->texturePath != "")
+    {
+        this->texture.texUnit(shader, "tex0", 0);
+        glUniform1i(isTextured, 1);
+        this->texture.Bind();
+    }
+    else
+    {
+        glUniform1i(isTextured, 0);
+    }
+    this->VAO.Bind();
+    camera.Matrix(shader, "camMatrix");
+    glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);
+}
 
 Mesh::Mesh(const std::string &name, const std::vector<SubMesh> &tempSubMeshes) : Object(name)
 {
+    this->type = "Mesh";
     Mesh::subMeshes = tempSubMeshes;
     for (int i = 0; i < subMeshes.size(); i++)
     {
@@ -23,7 +38,7 @@ Mesh::Mesh(const std::string &name, const std::vector<SubMesh> &tempSubMeshes) :
         // vbo.Unbind();
         // ebo.Unbind();
         if (subMeshes[i].texturePath != "")
-        {   
+        {
             Texture tempTexture = Texture(subMeshes[i].texturePath.c_str(), GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
             subMeshes[i].texture = tempTexture;
         }
@@ -38,20 +53,6 @@ void Mesh::Draw(
 
     for (int i = 0; i < subMeshes.size(); i++)
     {
-        int isTextured = glGetUniformLocation(shader.ID, "isTextured");
-        shader.Activate();
-        if (subMeshes[i].texturePath != "")
-        {
-            subMeshes[i].texture.texUnit(shader, "tex0", 0);
-            glUniform1i(isTextured, 1);
-            subMeshes[i].texture.Bind();
-        }
-        else
-        {
-            glUniform1i(isTextured, 0);
-        }
-        subMeshes[i].VAO.Bind();
-        camera.Matrix(shader, "camMatrix");
-        glDrawElements(GL_TRIANGLES, subMeshes[i].indices.size(), GL_UNSIGNED_INT, 0);
+        subMeshes[i].Draw(shader, camera);
     }
 }

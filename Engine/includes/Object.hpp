@@ -6,6 +6,7 @@
 class Object
 {
 public:
+    std::string type = "EmptyObject"; // Tipo de objeto (por defecto "Object")
     std::string name;                  // Nombre del objeto (opcional)
     glm::vec3 position;                // Posición en el espacio
     glm::vec3 rotation;                // Rotación (como Euler o Quaternion)

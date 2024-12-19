@@ -12,8 +12,10 @@ struct FileEntry
     bool is_directory;
 };
 
-std::string TruncateText(const std::string& text, size_t maxChars) {
-    if (text.length() <= maxChars) {
+std::string TruncateText(const std::string &text, size_t maxChars)
+{
+    if (text.length() <= maxChars)
+    {
         return text;
     }
     return text.substr(0, maxChars - 3) + "..."; // Truncar y añadir '...'
@@ -65,12 +67,63 @@ ImTextureID Engine::LoadTextureFromFile(const std::string &filename)
 void Engine::RenderObjectList()
 {
     ImGui::Begin("Object List"); // Ventana de la lista de objetos
+
     for (size_t i = 0; i < sceneObjects.size(); ++i)
     {
-        // Resalta el objeto seleccionado en la lista
-        if (ImGui::Selectable(sceneObjects[i]->name.c_str(), selectedObject == sceneObjects[i]))
+        bool isMesh = false;
+        std::shared_ptr<Mesh> meshPtr = std::dynamic_pointer_cast<Mesh>(sceneObjects[i]);
+
+        if (meshPtr)
         {
-            selectedObject = sceneObjects[i];
+            isMesh = true;
+        }
+
+        // Crear un identificador único para el Mesh (usando el nombre o índice)
+        std::string meshID = "##Mesh" + std::to_string(i);
+
+        if (isMesh)
+        {
+            // Crear el TreeNode para el Mesh, pero usando ImGui::Selectable dentro de él
+            bool node_selected = selectedObject == sceneObjects[i]; // Verificar si el nodo está seleccionado
+            if (ImGui::TreeNodeEx(meshID.c_str(), ImGuiTreeNodeFlags_Selected, sceneObjects[i]->name.c_str()))
+            {
+                // Al hacer clic en el TreeNode, seleccionamos el Mesh principal
+                if (ImGui::IsItemClicked())
+                {
+                    selectedObject = sceneObjects[i];
+                }
+
+                // Mostrar los SubMeshes dentro de este TreeNode
+                for (size_t j = 0; j < meshPtr->subMeshes.size(); ++j)
+                {
+                    // Crear un identificador único para el SubMesh
+                    std::string subMeshID = "##SubMesh" + std::to_string(i) + "_" + std::to_string(j);
+
+                    // Listar los SubMeshes como elementos seleccionables dentro del Mesh
+                    if (ImGui::Selectable(meshPtr->subMeshes[j].name.c_str(), false))
+                    {
+                        // Lógica para manejar la selección de un SubMesh
+                        selectedObject = std::make_shared<SubMesh>(meshPtr->subMeshes[j]);
+                        std::cout << "Seleccionaste el SubMesh: " << meshPtr->subMeshes[j].name << std::endl;
+                    }
+                }
+
+                // Cerrar el TreeNode
+                ImGui::TreePop();
+            }
+            else if (node_selected)
+            {
+                // Asegurarnos de que el nodo seleccionado se resalte
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+        else
+        {
+            // Si no es un Mesh, solo mostrar el objeto
+            if (ImGui::Selectable(sceneObjects[i]->name.c_str(), selectedObject == sceneObjects[i]))
+            {
+                selectedObject = sceneObjects[i];
+            }
         }
     }
     ImGui::End();
@@ -101,8 +154,6 @@ void Engine::RenderPropertiesWindow()
         {
             // Actualizar la escala en caso de cambios
         }
-
-        
     }
     ImGui::End();
 }
@@ -193,7 +244,8 @@ void Engine::RenderFileSystem()
             // Cargar el archivo
             // std::string filename = (fs::path(currentPath) / entry.name).string();
             // std::cout << "Loading file: " << filename << std::endl;
-            if (ImGui::IsItemClicked() && entry.name.ends_with(".obj")) {
+            if (ImGui::IsItemClicked() && entry.name.ends_with(".obj"))
+            {
                 AddOBJModel(entry.name, fs::path(currentPath).string());
                 std::cout << "Importando modelo: " << entry.name << std::endl;
             }

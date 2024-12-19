@@ -67,16 +67,16 @@ std::vector<MTL> LoadMTL(const std::string &filePath)
         }
     }
     materials.push_back(currentMaterial);
-    for (const auto &material : materials)
-    {
-        std::cout << "Material: " << material.name << std::endl;
-        std::cout << "Ka: " << glm::to_string(material.Ka) << std::endl;
-        std::cout << "Kd: " << glm::to_string(material.Kd) << std::endl;
-        std::cout << "Ks: " << glm::to_string(material.Ks) << std::endl;
-        std::cout << "Ns: " << material.Ns << std::endl;
-        std::cout << "d: " << material.d << std::endl;
-        std::cout << "map_Kd: " << material.map_Kd << std::endl;
-    }
+    // for (const auto &material : materials)
+    // {
+    //     std::cout << "Material: " << material.name << std::endl;
+    //     std::cout << "Ka: " << glm::to_string(material.Ka) << std::endl;
+    //     std::cout << "Kd: " << glm::to_string(material.Kd) << std::endl;
+    //     std::cout << "Ks: " << glm::to_string(material.Ks) << std::endl;
+    //     std::cout << "Ns: " << material.Ns << std::endl;
+    //     std::cout << "d: " << material.d << std::endl;
+    //     std::cout << "map_Kd: " << material.map_Kd << std::endl;
+    // }
     file.close();
     return materials;
 }
@@ -92,6 +92,8 @@ Mesh OBJLoader::LoadOBJ(const std::string &currentPath, const std::string &fileN
     std::vector<glm::vec2> tempTexCoords;
 
     std::string filePath = currentPath + "/" + fileName;
+
+    std::string tempName;
 
     std::ifstream file(filePath);
     std::vector<MTL> mtl = LoadMTL(filePath.substr(0, filePath.size() - 4) + ".mtl");
@@ -147,8 +149,14 @@ Mesh OBJLoader::LoadOBJ(const std::string &currentPath, const std::string &fileN
         {
             if (!vertices.empty() || !indices.empty())
             {
-                // Crear un SubMesh para el grupo anterior
+                if (tempName.empty())
+                {
+                    tempName = "empty";
+                }
+                std::string name;
+                lineStream >> name;
                 SubMesh subMesh;
+                subMesh.name = name;
                 subMesh.vertices = vertices;
                 subMesh.indices = indices;
 
@@ -179,6 +187,10 @@ Mesh OBJLoader::LoadOBJ(const std::string &currentPath, const std::string &fileN
                 subMeshes.push_back(subMesh);
                 vertices.clear();
                 indices.clear();
+            }
+            else
+            {
+                lineStream >> tempName;
             }
         }
         else if (prefix == "f")
@@ -242,6 +254,10 @@ Mesh OBJLoader::LoadOBJ(const std::string &currentPath, const std::string &fileN
         SubMesh subMesh;
         subMesh.vertices = vertices;
         subMesh.indices = indices;
+        if (tempName.empty())
+            tempName = "empty";
+        else
+            subMesh.name = tempName;
 
         subMesh.VAO.Init();
         subMesh.VAO.Bind();
