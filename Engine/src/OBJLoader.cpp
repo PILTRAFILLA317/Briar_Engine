@@ -4,7 +4,84 @@
 
 #include "glm/gtx/string_cast.hpp"
 
-Mesh OBJLoader::LoadOBJ(const std::string &filePath)
+struct MTL
+{
+    std::string name;
+    glm::vec3 Ka;
+    glm::vec3 Kd;
+    glm::vec3 Ks;
+    float Ns;
+    float d;
+    std::string map_Kd;
+};
+
+std::vector<MTL> LoadMTL(const std::string &filePath)
+{
+    std::vector<MTL> materials;
+    MTL currentMaterial;
+    std::ifstream file(filePath);
+    if (!file.is_open())
+    {
+        std::cerr << "Error al abrir el archivo MTL: " << filePath << std::endl;
+        return materials;
+    }
+    while (!file.eof())
+    {
+        std::string line;
+        std::getline(file, line);
+        std::istringstream lineStream(line);
+        std::string prefix;
+        lineStream >> prefix;
+        if (prefix == "newmtl")
+        {
+            if (!currentMaterial.name.empty())
+            {
+                materials.push_back(currentMaterial);
+            }
+            currentMaterial = {};
+            lineStream >> currentMaterial.name;
+        }
+        else if (prefix == "Ka")
+        {
+            lineStream >> currentMaterial.Ka.r >> currentMaterial.Ka.g >> currentMaterial.Ka.b;
+        }
+        else if (prefix == "Kd")
+        {
+            lineStream >> currentMaterial.Kd.r >> currentMaterial.Kd.g >> currentMaterial.Kd.b;
+        }
+        else if (prefix == "Ks")
+        {
+            lineStream >> currentMaterial.Ks.r >> currentMaterial.Ks.g >> currentMaterial.Ks.b;
+        }
+        else if (prefix == "Ns")
+        {
+            lineStream >> currentMaterial.Ns;
+        }
+        else if (prefix == "d")
+        {
+            lineStream >> currentMaterial.d;
+        }
+        else if (prefix == "map_Kd")
+        {
+            lineStream >> currentMaterial.map_Kd;
+        }
+    }
+    materials.push_back(currentMaterial);
+    for (const auto &material : materials)
+    {
+        std::cout << "Material: " << material.name << std::endl;
+        std::cout << "Ka: " << glm::to_string(material.Ka) << std::endl;
+        std::cout << "Kd: " << glm::to_string(material.Kd) << std::endl;
+        std::cout << "Ks: " << glm::to_string(material.Ks) << std::endl;
+        std::cout << "Ns: " << material.Ns << std::endl;
+        std::cout << "d: " << material.d << std::endl;
+        std::cout << "map_Kd: " << material.map_Kd << std::endl;
+    }
+    file.close();
+    return materials;
+}
+
+Mesh OBJLoader::LoadOBJ(const std::string &currentPath, const std::string &fileName)
 {
     std::vector<SubMesh> subMeshes;
     std::vector<Vertex> vertices;
@@ -14,7 +91,13 @@ Mesh OBJLoader::LoadOBJ(const std::string &filePath)
     std::vector<glm::vec3> tempNormals;
     std::vector<glm::vec2> tempTexCoords;
 
+    std::string filePath = currentPath + "/" + fileName;
+
     std::ifstream file(filePath);
+    std::vector<MTL> mtl = LoadMTL(filePath.substr(0, filePath.size() - 4) + ".mtl");
+    MTL currentMaterial;
+
+    std::map<std::string, Texture> textures;
     if (!file.is_open())
     {
         std::cerr << "Failed to open OBJ file: " << filePath << std::endl;
@@ -46,6 +129,20 @@ Mesh OBJLoader::LoadOBJ(const std::string &filePath)
             lineStream >> normal.x >> normal.y >> normal.z;
             tempNormals.push_back(normal);
         }
+        else if (prefix == "usemtl")
+        {
+            std::string materialName;
+            lineStream >> materialName;
+            for (const auto &material : mtl)
+            {
+                if (material.name == materialName)
+                    currentMaterial = material;
+                if (currentMaterial.name.empty())
+                {
+                    std::cerr << "Material not found: " << materialName << std::endl;
+                }
+            }
+        }
         else if (prefix == "o" || prefix == "g")
         {
             if (!vertices.empty() || !indices.empty())
@@ -68,6 +165,16 @@ Mesh OBJLoader::LoadOBJ(const std::string &filePath)
                 subMesh.VAO.Unbind();
                 vbo.Unbind();
                 ebo.Unbind();
+
+                if (!currentMaterial.map_Kd.empty())
+                {
+                    if (textures.find(currentMaterial.map_Kd) == textures.end())
+                    {
+                        Texture texture(currentMaterial.map_Kd.c_str(), GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
+                        textures[currentMaterial.map_Kd] = texture;
+                    }
+                    subMesh.texture = textures[currentMaterial.map_Kd];
+                }
 
                 subMeshes.push_back(subMesh);
                 vertices.clear();
@@ -120,6 +227,7 @@ Mesh OBJLoader::LoadOBJ(const std::string &filePath)
                     vertex.position = tempPositions[trianglePosIndices[j]];
                     vertex.texUV = triangleUVIndices[j] < tempTexCoords.size() ? tempTexCoords[triangleUVIndices[j]] : glm::vec2(0.0f, 0.0f);
                     vertex.normal = triangleNormalIndices[j] < tempNormals.size() ? tempNormals[triangleNormalIndices[j]] : glm::vec3(0.0f, 0.0f, 0.0f);
+                    vertex.color = currentMaterial.Kd;
 
                     vertices.push_back(vertex);
                     indices.push_back(static_cast<GLuint>(vertices.size() - 1));
@@ -152,9 +260,5 @@ Mesh OBJLoader::LoadOBJ(const std::string &filePath)
     }
 
     file.close();
-    for (int i = 0; i < subMeshes.size(); i++)
-    {
-        std::cout << "SubMesh " << i << " vertices: " << subMeshes[i].vertices.size() << " indices: " << subMeshes[i].indices.size() << std::endl;
-    }
-    return Mesh("EEEEEONO", subMeshes); // Devuelve el objeto Mesh construido
+    return Mesh("empty", subMeshes); // Devuelve el objeto Mesh construido
 }

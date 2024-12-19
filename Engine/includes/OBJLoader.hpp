@@ -12,6 +12,6 @@
 // Simple OBJ Loader
 class OBJLoader {
 public:
-    static Mesh LoadOBJ(const std::string& filePath);
+    static Mesh LoadOBJ(const std::string& currentPath, const std::string& fileName);
     // static Mesh LoadOBJWithTinyOBJ(const std::string& filePath);
 };

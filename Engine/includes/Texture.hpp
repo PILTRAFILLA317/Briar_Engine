@@ -13,6 +13,14 @@ public:
 	Texture(const char *image, GLenum texType, GLenum slot, GLenum format, GLenum pixelType);
 	Texture() {}
 
+	// = operator overloading
+	Texture &operator=(const Texture &tex)
+	{
+		this->ID = tex.ID;
+		this->type = tex.type;
+		return *this;
+	}
+
 	// Assigns a texture unit to a texture
 	void texUnit(Shader &shader, const char *uniform, GLuint unit);
 	// Binds a texture

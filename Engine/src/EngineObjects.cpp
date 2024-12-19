@@ -6,7 +6,7 @@
 
 void Engine::AddOBJModel(const std::string &name, const std::string &path)
 {
-    Mesh mesh = OBJLoader::LoadOBJ(path);
+    Mesh mesh = OBJLoader::LoadOBJ(path, name);
     mesh.name = name;
     AddObject(std::make_shared<Mesh>(mesh));
 }

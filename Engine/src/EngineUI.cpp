@@ -101,6 +101,8 @@ void Engine::RenderPropertiesWindow()
         {
             // Actualizar la escala en caso de cambios
         }
+
+        
     }
     ImGui::End();
 }
@@ -185,6 +187,16 @@ void Engine::RenderFileSystem()
         if (ImGui::IsItemClicked() && entry.is_directory)
         {
             currentPath = fs::path(currentPath) / entry.name;
+        }
+        else if (ImGui::IsItemClicked() && !entry.is_directory)
+        {
+            // Cargar el archivo
+            // std::string filename = (fs::path(currentPath) / entry.name).string();
+            // std::cout << "Loading file: " << filename << std::endl;
+            if (ImGui::IsItemClicked() && entry.name.ends_with(".obj")) {
+                AddOBJModel(entry.name, fs::path(currentPath).string());
+                std::cout << "Importando modelo: " << entry.name << std::endl;
+            }
         }
 
         ImGui::Dummy(ImVec2(0.0f, 0.5f)); // Espacio entre el botón y el texto

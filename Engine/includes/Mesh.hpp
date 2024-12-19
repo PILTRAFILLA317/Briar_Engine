@@ -11,6 +11,8 @@ struct SubMesh
 {
     std::vector<Vertex> vertices;
     std::vector<GLuint> indices;
+    std::string name;
+    std::string texturePath;
     Texture texture; // Cada sub-mesh tiene una textura asociada
     VAO VAO;         // Cada sub-mesh tiene su propio VAO
 };
@@ -21,8 +23,7 @@ public:
     std::vector<SubMesh> subMeshes;
 
     // Constructor
-    Mesh(const std::string &name, const std::vector<SubMesh> &subMeshes)
-        : Object(name), subMeshes(subMeshes) {}
+    Mesh(const std::string &name, const std::vector<SubMesh> &subMeshes);
 
     Mesh(const std::string &name = "Unnamed") : Object(name) {}
 

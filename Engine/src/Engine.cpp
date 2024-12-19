@@ -150,11 +150,7 @@ void Engine::Render()
     // Renderizar modelo
     // mesh.Draw(shaderProgram, *camera);
     for (auto &object : sceneObjects)
-    {
-        printf("Drawing object %s\n", object->name.c_str());
-        printf("Object address: %p, name: %s\n", object.get(), object->name.c_str());
         object->Draw(shaderProgram, *camera);
-    }
 
     // Take care of all GLFW events
     glfwPollEvents();
