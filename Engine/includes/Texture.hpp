@@ -11,7 +11,10 @@ public:
 	GLuint ID;
 	GLenum type;
 	Texture(const char *image, GLenum texType, GLenum slot, GLenum format, GLenum pixelType);
-	Texture() {}
+	Texture() {
+		ID = -1;
+		type = GL_TEXTURE_2D;
+	}
 
 	// = operator overloading
 	Texture &operator=(const Texture &tex)

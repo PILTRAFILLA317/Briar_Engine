@@ -4,7 +4,7 @@ out vec4 FragColor;
 in vec3 ourColor;
 in vec2 TexCoord;
 uniform sampler2D tex0;
-uniform bool isTextured;
+uniform bool isTextured = false;
 
 void main() {
     if (isTextured) {

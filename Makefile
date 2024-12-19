@@ -21,6 +21,7 @@ SRC_DIR = Engine/src
 STB_DIR = Engine/stb
 GLAD_DIR = ./Engine/glad/src
 SOURCES += $(wildcard $(SRC_DIR)/*.cpp)
+SOURCES += $(wildcard $(SRC_DIR)/EngineUI/*.cpp)
 SOURCES += $(wildcard $(STB_DIR)/*.cpp)
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_glfw.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
@@ -87,6 +88,10 @@ $(OBJS_DIR)/%.o:%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(OBJS_DIR)/%.o:$(SRC_DIR)/%.cpp
+	@mkdir -p $(OBJS_DIR)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(OBJS_DIR)/%.o:$(SRC_DIR)/EngineUI/%.cpp
 	@mkdir -p $(OBJS_DIR)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 

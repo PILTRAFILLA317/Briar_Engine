@@ -4,9 +4,9 @@ namespace fs = std::filesystem;
 
 void SubMesh::Draw(Shader &shader, Camera &camera)
 {
-    int isTextured = glGetUniformLocation(shader.ID, "isTextured");
     shader.Activate();
-    if (this->texturePath != "")
+    int isTextured = glGetUniformLocation(shader.ID, "isTextured");
+    if (this->texture.ID != -1)
     {
         this->texture.texUnit(shader, "tex0", 0);
         glUniform1i(isTextured, 1);
@@ -37,11 +37,6 @@ Mesh::Mesh(const std::string &name, const std::vector<SubMesh> &tempSubMeshes) :
         // subMeshes[i].VAO.Unbind();
         // vbo.Unbind();
         // ebo.Unbind();
-        if (subMeshes[i].texturePath != "")
-        {
-            Texture tempTexture = Texture(subMeshes[i].texturePath.c_str(), GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-            subMeshes[i].texture = tempTexture;
-        }
     }
 }
 

@@ -174,15 +174,15 @@ Mesh OBJLoader::LoadOBJ(const std::string &currentPath, const std::string &fileN
                 vbo.Unbind();
                 ebo.Unbind();
 
-                if (!currentMaterial.map_Kd.empty())
-                {
-                    if (textures.find(currentMaterial.map_Kd) == textures.end())
-                    {
-                        Texture texture(currentMaterial.map_Kd.c_str(), GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
-                        textures[currentMaterial.map_Kd] = texture;
-                    }
-                    subMesh.texture = textures[currentMaterial.map_Kd];
-                }
+                // if (!currentMaterial.map_Kd.empty())
+                // {
+                //     if (textures.find(currentMaterial.map_Kd) == textures.end())
+                //     {
+                //         Texture texture(currentMaterial.map_Kd.c_str(), GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
+                //         textures[currentMaterial.map_Kd] = texture;
+                //     }
+                //     subMesh.texture = textures[currentMaterial.map_Kd];
+                // }
 
                 subMeshes.push_back(subMesh);
                 vertices.clear();
