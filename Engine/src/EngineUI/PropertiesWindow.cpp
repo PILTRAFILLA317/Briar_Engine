@@ -47,10 +47,7 @@ void Engine::RenderPropertiesWindow()
                     {
                         // Guardar la ruta seleccionada
                         selectedImagePath = file;
-                        std::cout << "Selected Image Path: " << selectedImagePath << std::endl;
                         subMesh->UpdateTexture(selectedImagePath);
-                        // printf("TEXTURE path: %s\n", subMesh->texturePath.c_str());
-                        // printf("SubMesh name: %s\n", subMesh->name.c_str());
                     }
                 }
             }

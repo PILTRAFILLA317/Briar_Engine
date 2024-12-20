@@ -52,7 +52,6 @@ void Engine::RenderObjectList()
                     {
                         selectedObject = std::shared_ptr<Object>(&meshPtr->subMeshes[j], [](Object *) {});
                         // selectedObject = std::shared_ptr<SubMesh>(&meshPtr->subMeshes[j]), [](SubMesh *) {};
-                        // std::cout << "Seleccionaste el SubMesh: " << meshPtr->subMeshes[j].name << std::endl;
                     }
                 }
 

@@ -18,9 +18,9 @@ public:
     Texture texture; // Cada sub-mesh tiene una textura asociada
     VAO VAO;
 
-    SubMesh(const std::string &name = "Default") : Object(name) {
+    SubMesh(const std::string &name = "Default") : Object(name)
+    {
         this->type = "SubMesh";
-        printf("TEXTURE ID: %d\n", this->texture.ID);
     }
 
     void UpdateTexture(const std::string &texturePath)
@@ -31,7 +31,12 @@ public:
 
     // void Update() override;
 
-    void Draw(Shader &shader, Camera &camera) override;
+    void Draw(
+        Shader &shader,
+        Camera &camera,
+        glm::vec3 position,
+        glm::vec3 rotation,
+        glm::vec3 scale);
 };
 
 class Mesh : public Object

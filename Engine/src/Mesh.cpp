@@ -2,7 +2,8 @@
 #include <filesystem>
 namespace fs = std::filesystem;
 
-void SubMesh::Draw(Shader &shader, Camera &camera)
+void SubMesh::Draw(Shader &shader, Camera &camera,
+                   glm::vec3 mainPosition, glm::vec3 mainRotation, glm::vec3 mainScale)
 {
     shader.Activate();
     int isTextured = glGetUniformLocation(shader.ID, "isTextured");
@@ -18,6 +19,25 @@ void SubMesh::Draw(Shader &shader, Camera &camera)
     }
     this->VAO.Bind();
     camera.Matrix(shader, "camMatrix");
+    glm::mat4 matrix = glm::mat4(1.0f);
+
+    glm::quat rot = glm::quat(this->rotation);
+    matrix = glm::translate(matrix, this->position);
+
+    // Añadir rotación
+    matrix *= glm::mat4_cast(rot);
+
+    // Añadir escala
+    matrix = glm::scale(matrix, this->scale);
+
+    matrix = glm::translate(matrix, mainPosition);
+    matrix = glm::rotate(matrix, glm::radians(mainRotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    matrix = glm::rotate(matrix, glm::radians(mainRotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    matrix = glm::rotate(matrix, glm::radians(mainRotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    matrix = glm::scale(matrix, mainScale);
+
+    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(matrix));
+
     glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);
 }
 
@@ -48,6 +68,6 @@ void Mesh::Draw(
 
     for (int i = 0; i < subMeshes.size(); i++)
     {
-        subMeshes[i].Draw(shader, camera);
+        subMeshes[i].Draw(shader, camera, this->position, this->rotation, this->scale);
     }
 }
