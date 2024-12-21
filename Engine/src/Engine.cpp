@@ -21,13 +21,17 @@ void Engine::ShaderCreator()
     std::string parentDir = (fs::current_path()).string();
     std::string shaderPath = "/assets/shaders/";
 
-    shaderProgram = Shader((parentDir + shaderPath + "vertex_shader.glsl"), (parentDir + shaderPath + "fragment_shader.glsl"));
+    shaderProgram = Shader((parentDir + shaderPath + "defaultVert.glsl"), (parentDir + shaderPath + "defaultFrag.glsl"));
+    textureShader = Shader((parentDir + shaderPath + "textureVert.glsl"), (parentDir + shaderPath + "textureFrag.glsl"));
 
     camera = new Camera(windowWidth, windowHeight, glm::vec3(0.0f, 0.0f, 2.0f));
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_DEBUG_OUTPUT);
-    glDisable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // glDisable(GL_CULL_FACE);
 }
 
 void Engine::Init()
@@ -127,6 +131,7 @@ void Engine::RenderUI()
     ImGui::ColorEdit3("Color", (float *)&clearColor);
     ImGui::End();
 
+    RenderMainMenuBar();
     RenderObjectList();
     RenderPropertiesWindow();
     RenderFileSystem();
@@ -150,7 +155,12 @@ void Engine::Render()
     // Renderizar modelo
     // mesh.Draw(shaderProgram, *camera);
     for (auto &object : sceneObjects)
-        object->Draw(shaderProgram, *camera);
+    {
+        if (object->type == "Mesh")
+            object->Draw(shaderProgram, *camera);
+        else if (object->type == "Light")
+            object->Draw(textureShader, *camera);
+    }
 
     // Take care of all GLFW events
     glfwPollEvents();

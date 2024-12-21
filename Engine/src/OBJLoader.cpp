@@ -146,30 +146,6 @@ Mesh OBJLoader::LoadOBJ(const std::string &currentPath, const std::string &fileN
                 subMesh.vertices = vertices;
                 subMesh.indices = indices;
 
-                // Configurar el VAO
-                subMesh.VAO.Init();
-                subMesh.VAO.Bind();
-                VBO vbo(vertices);
-                EBO ebo(indices);
-
-                subMesh.VAO.LinkAttrib(vbo, 0, 3, GL_FLOAT, sizeof(Vertex), (void *)0);
-                subMesh.VAO.LinkAttrib(vbo, 1, 3, GL_FLOAT, sizeof(Vertex), (void *)(6 * sizeof(float)));
-                subMesh.VAO.LinkAttrib(vbo, 2, 3, GL_FLOAT, sizeof(Vertex), (void *)(9 * sizeof(float)));
-
-                subMesh.VAO.Unbind();
-                vbo.Unbind();
-                ebo.Unbind();
-
-                // if (!currentMaterial.map_Kd.empty())
-                // {
-                //     if (textures.find(currentMaterial.map_Kd) == textures.end())
-                //     {
-                //         Texture texture(currentMaterial.map_Kd.c_str(), GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
-                //         textures[currentMaterial.map_Kd] = texture;
-                //     }
-                //     subMesh.texture = textures[currentMaterial.map_Kd];
-                // }
-
                 lineStream >> tempName;
                 subMeshes.push_back(subMesh);
                 vertices.clear();

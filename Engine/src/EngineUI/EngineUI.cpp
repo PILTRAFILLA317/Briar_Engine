@@ -35,7 +35,8 @@ ImTextureID Engine::LoadTextureFromFile(const std::string &filename)
     // Liberar la imagen cargada
     stbi_image_free(data);
 
-    return (ImTextureID)(intptr_t)textureID;
+    // return (ImTextureID)(intptr_t)textureID;
+    return reinterpret_cast<ImTextureID>(textureID);
 }
 
 void Engine::RenderScene()

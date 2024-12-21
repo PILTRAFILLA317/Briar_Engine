@@ -23,18 +23,15 @@ void SubMesh::Draw(Shader &shader, Camera &camera,
 
     glm::quat rot = glm::quat(this->rotation);
     matrix = glm::translate(matrix, this->position);
-
-    // Añadir rotación
     matrix *= glm::mat4_cast(rot);
-
-    // Añadir escala
     matrix = glm::scale(matrix, this->scale);
 
+    // Añadir la transformación del objeto principal
     matrix = glm::translate(matrix, mainPosition);
+    matrix = glm::scale(matrix, mainScale);
     matrix = glm::rotate(matrix, glm::radians(mainRotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
     matrix = glm::rotate(matrix, glm::radians(mainRotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
     matrix = glm::rotate(matrix, glm::radians(mainRotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
-    matrix = glm::scale(matrix, mainScale);
 
     glUniformMatrix4fv(glGetUniformLocation(shader.ID, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(matrix));
 
@@ -47,16 +44,16 @@ Mesh::Mesh(const std::string &name, const std::vector<SubMesh> &tempSubMeshes) :
     Mesh::subMeshes = tempSubMeshes;
     for (int i = 0; i < subMeshes.size(); i++)
     {
-        // subMeshes[i].VAO.Init();
-        // subMeshes[i].VAO.Bind();
-        // VBO vbo(subMeshes[i].vertices);
-        // EBO ebo(subMeshes[i].indices);
-        // subMeshes[i].VAO.LinkAttrib(vbo, 0, 3, GL_FLOAT, sizeof(Vertex), (void *)0);
-        // subMeshes[i].VAO.LinkAttrib(vbo, 1, 3, GL_FLOAT, sizeof(Vertex), (void *)(3 * sizeof(float)));
-        // subMeshes[i].VAO.LinkAttrib(vbo, 2, 2, GL_FLOAT, sizeof(Vertex), (void *)(6 * sizeof(float)));
-        // subMeshes[i].VAO.Unbind();
-        // vbo.Unbind();
-        // ebo.Unbind();
+        subMeshes[i].VAO.Init();
+        subMeshes[i].VAO.Bind();
+        VBO vbo(subMeshes[i].vertices);
+        EBO ebo(subMeshes[i].indices);
+        subMeshes[i].VAO.LinkAttrib(vbo, 0, 3, GL_FLOAT, sizeof(Vertex), (void *)0);
+        subMeshes[i].VAO.LinkAttrib(vbo, 1, 3, GL_FLOAT, sizeof(Vertex), (void *)(6 * sizeof(float)));
+        subMeshes[i].VAO.LinkAttrib(vbo, 2, 3, GL_FLOAT, sizeof(Vertex), (void *)(9 * sizeof(float)));
+        subMeshes[i].VAO.Unbind();
+        vbo.Unbind();
+        ebo.Unbind();
     }
 }
 

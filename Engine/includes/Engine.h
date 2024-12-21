@@ -21,6 +21,7 @@ namespace fs = std::filesystem;
 #include "Mesh.hpp"
 #include "Object.hpp"
 #include "OBJLoader.hpp"
+#include "Light.hpp"
 
 struct color
 {
@@ -67,6 +68,8 @@ private:
     ImTextureID fileIcon;
 
     Shader shaderProgram;
+    Shader textureShader;
+
     float window_width = 0.0f;
     float window_height = 0.0f;
 
@@ -86,6 +89,7 @@ private:
     void RenderFileSystem();
     void RenderScene();
     void RenderGame();
+    void RenderMainMenuBar();
 
     // void CreateObject(const std::string& name, const std::string& path);
 

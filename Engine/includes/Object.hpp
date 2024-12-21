@@ -6,11 +6,11 @@
 class Object
 {
 public:
-    std::string type = "EmptyObject"; // Tipo de objeto (por defecto "Object")
-    std::string name;                 // Nombre del objeto (opcional)
-    glm::vec3 position;               // Posición en el espacio
-    glm::vec3 rotation;               // Rotación (como Euler o Quaternion)
-    glm::vec3 scale;                  // Escala (por defecto 1.0)
+    std::string type = "EmptyObject";  // Tipo de objeto (por defecto "Object")
+    std::string name;                  // Nombre del objeto (opcional)
+    glm::vec3 position;                // Posición en el espacio
+    glm::vec3 rotation;                // Rotación (como Euler o Quaternion)
+    glm::vec3 scale = glm::vec3(1.0f); // Escala (por defecto 1.0)
 
     Object(const std::string &name = "Unnamed")
         : name(name), position(0.0f), rotation(0.0f), scale(1.0f) {}

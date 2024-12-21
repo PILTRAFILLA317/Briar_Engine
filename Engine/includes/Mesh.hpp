@@ -25,7 +25,6 @@ public:
 
     void UpdateTexture(const std::string &texturePath)
     {
-        // this->texturePath = texturePath;
         this->texture = Texture(texturePath.c_str(), GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
     }
 
