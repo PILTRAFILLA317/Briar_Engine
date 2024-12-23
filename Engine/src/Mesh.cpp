@@ -33,8 +33,8 @@ void SubMesh::Draw(Shader &shader, Camera &camera,
     matrix = glm::rotate(matrix, glm::radians(mainRotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
     matrix = glm::rotate(matrix, glm::radians(mainRotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
 
+    glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
     glUniformMatrix4fv(glGetUniformLocation(shader.ID, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(matrix));
-
     glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);
 }
 
@@ -49,8 +49,9 @@ Mesh::Mesh(const std::string &name, const std::vector<SubMesh> &tempSubMeshes) :
         VBO vbo(subMeshes[i].vertices);
         EBO ebo(subMeshes[i].indices);
         subMeshes[i].VAO.LinkAttrib(vbo, 0, 3, GL_FLOAT, sizeof(Vertex), (void *)0);
-        subMeshes[i].VAO.LinkAttrib(vbo, 1, 3, GL_FLOAT, sizeof(Vertex), (void *)(6 * sizeof(float)));
-        subMeshes[i].VAO.LinkAttrib(vbo, 2, 3, GL_FLOAT, sizeof(Vertex), (void *)(9 * sizeof(float)));
+        subMeshes[i].VAO.LinkAttrib(vbo, 1, 3, GL_FLOAT, 11 * sizeof(float), (void *)(6 * sizeof(float)));
+        subMeshes[i].VAO.LinkAttrib(vbo, 2, 2, GL_FLOAT, 11 * sizeof(float), (void *)(8 * sizeof(float)));
+        subMeshes[i].VAO.LinkAttrib(vbo, 3, 3, GL_FLOAT, 11 * sizeof(float), (void *)(11 * sizeof(float)));
         subMeshes[i].VAO.Unbind();
         vbo.Unbind();
         ebo.Unbind();
@@ -61,8 +62,7 @@ void Mesh::Draw(
     Shader &shader,
     Camera &camera)
 {
-    // // Bind shader to be able to access uniforms
-
+    // Bind shader to be able to access uniforms
     for (int i = 0; i < subMeshes.size(); i++)
     {
         subMeshes[i].Draw(shader, camera, this->position, this->rotation, this->scale);

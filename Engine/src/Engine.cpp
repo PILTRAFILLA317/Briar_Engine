@@ -151,15 +151,29 @@ void Engine::Render()
 
     // Camera
     camera->updateMatrix(45.0f, 0.1f, 1000.0f);
-
-    // Renderizar modelo
-    // mesh.Draw(shaderProgram, *camera);
     for (auto &object : sceneObjects)
     {
         if (object->type == "Mesh")
             object->Draw(shaderProgram, *camera);
-        else if (object->type == "Light")
+        if (object->type == "Light")
+        {
+            shaderProgram.Activate();
+            auto light = std::dynamic_pointer_cast<Light>(object);
+            // if (light)
+            // {
+            //     std::string base = "lights[" + std::to_string(i) + "]"; // Para acceder a cada luz
+
+            //     // Configurar la posición, el color y la intensidad de cada luz
+            //     glUniform3fv(glGetUniformLocation(shaderProgram.ID, (base + ".position").c_str()), 1, glm::value_ptr(light->position));
+            //     glUniform3fv(glGetUniformLocation(shaderProgram.ID, (base + ".color").c_str()), 1, glm::value_ptr(light->color));
+            //     glUniform1f(glGetUniformLocation(shaderProgram.ID, (base + ".intensity").c_str()), light->intensity);
+            //     i++;
+            // }
+            glUniform3fv(glGetUniformLocation(shaderProgram.ID, "lightPos"), 1, glm::value_ptr(light->position));;
+            glUniform3fv(glGetUniformLocation(shaderProgram.ID, "lightColor"), 1, glm::value_ptr(light->color));
+            // glUniform1f(glGetUniformLocation(shaderProgram.ID, "lightIntensity"), object->intensity);
             object->Draw(textureShader, *camera);
+        }
     }
 
     // Take care of all GLFW events

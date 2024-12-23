@@ -33,9 +33,9 @@ Light::Light(const std::string &name, LightType type, const glm::vec3 &color, fl
     VAO.Bind();
     VBO vbo(vertices);
     EBO ebo(indices);
-    VAO.LinkAttrib(vbo, 0, 3, GL_FLOAT, sizeof(Vertex), (void *)0);
-    VAO.LinkAttrib(vbo, 1, 3, GL_FLOAT, sizeof(Vertex), (void *)(6 * sizeof(float)));
-    VAO.LinkAttrib(vbo, 2, 3, GL_FLOAT, sizeof(Vertex), (void *)(9 * sizeof(float)));
+    VAO.LinkAttrib(vbo, 0, 3, GL_FLOAT, sizeof(Vertex), (void *)0); // Posiciones
+    VAO.LinkAttrib(vbo, 1, 3, GL_FLOAT, sizeof(Vertex), (void *)(6 * sizeof(float))); // Normales
+    VAO.LinkAttrib(vbo, 2, 3, GL_FLOAT, sizeof(Vertex), (void *)(9 * sizeof(float))); // Texturas
     VAO.Unbind();
     vbo.Unbind();
     ebo.Unbind();

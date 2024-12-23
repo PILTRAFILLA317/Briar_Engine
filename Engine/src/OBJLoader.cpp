@@ -119,6 +119,7 @@ Mesh OBJLoader::LoadOBJ(const std::string &currentPath, const std::string &fileN
         {
             glm::vec3 normal;
             lineStream >> normal.x >> normal.y >> normal.z;
+            normal = glm::normalize(normal);
             tempNormals.push_back(normal);
         }
         else if (prefix == "usemtl")
