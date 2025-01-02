@@ -173,7 +173,7 @@ void Engine::Render()
             //     i++;
             // }
             glUniform3fv(glGetUniformLocation(shaderProgram.ID, "lightPos"), 1, glm::value_ptr(light->position));
-            ;
+            glUniform3fv(glGetUniformLocation(shaderProgram.ID, "lightDir"), 1, glm::value_ptr(light->rotation));
             glUniform3fv(glGetUniformLocation(shaderProgram.ID, "lightColor"), 1, glm::value_ptr(light->color));
             glUniform1f(glGetUniformLocation(shaderProgram.ID, "lightIntensity"), light->intensity);
             glUniform1f(glGetUniformLocation(shaderProgram.ID, "lightRange"), light->range);

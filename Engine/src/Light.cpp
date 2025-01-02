@@ -7,7 +7,7 @@ Light::Light(const std::string &name, LightType type, const glm::vec3 &color, fl
     : Object(name), lightType(type), color(color), intensity(intensity), range(10.0f)
 {
     fs::path path = fs::current_path();
-    std::string texturePath = path.string() + "/assets/textures/lightIcon.png";
+    std::string texturePath = path.string() + "/assets/textures/dlightIcon.png";
     this->texture = Texture(texturePath.c_str(), GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
 
     Vertex vertex;

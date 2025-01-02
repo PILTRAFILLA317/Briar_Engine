@@ -2,6 +2,8 @@
 
 #include <string>
 
+#define GL_SILENCE_DEPRECATION
+
 #include "Camera.hpp"
 #include "VAO.hpp"
 #include "EBO.hpp"
