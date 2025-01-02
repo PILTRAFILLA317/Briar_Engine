@@ -130,10 +130,6 @@ Mesh OBJLoader::LoadOBJ(const std::string &currentPath, const std::string &fileN
             {
                 if (material.name == materialName)
                     currentMaterial = material;
-                // if (currentMaterial.name.empty())
-                // {
-                //     std::cerr << "Material not found: " << materialName << std::endl;
-                // }
             }
         }
         else if (prefix == "o" || prefix == "g")

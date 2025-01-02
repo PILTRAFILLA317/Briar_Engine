@@ -129,6 +129,9 @@ void Engine::RenderUI()
                 camera->Orientation.x, camera->Orientation.y, camera->Orientation.z);
     ImGui::Text("Camera On: %s", cameraOn ? "true" : "false");
     ImGui::ColorEdit3("Color", (float *)&clearColor);
+    ImGui::Text("Ambient Light");
+    ImGui::DragFloat("Ambient Intensity", &ambientIntensity, 0.01f, 0.0f, 1.0f);
+    ImGui::ColorEdit3("Ambient Color", ambientColor);
     ImGui::End();
 
     RenderMainMenuBar();
@@ -169,9 +172,14 @@ void Engine::Render()
             //     glUniform1f(glGetUniformLocation(shaderProgram.ID, (base + ".intensity").c_str()), light->intensity);
             //     i++;
             // }
-            glUniform3fv(glGetUniformLocation(shaderProgram.ID, "lightPos"), 1, glm::value_ptr(light->position));;
+            glUniform3fv(glGetUniformLocation(shaderProgram.ID, "lightPos"), 1, glm::value_ptr(light->position));
+            ;
             glUniform3fv(glGetUniformLocation(shaderProgram.ID, "lightColor"), 1, glm::value_ptr(light->color));
-            // glUniform1f(glGetUniformLocation(shaderProgram.ID, "lightIntensity"), object->intensity);
+            glUniform1f(glGetUniformLocation(shaderProgram.ID, "lightIntensity"), light->intensity);
+            glUniform1f(glGetUniformLocation(shaderProgram.ID, "lightRange"), light->range);
+            glUniform1i(glGetUniformLocation(shaderProgram.ID, "lightType"), light->lightType);
+            glUniform1f(glGetUniformLocation(shaderProgram.ID, "ambientIntensity"), ambientIntensity);
+            glUniform3fv(glGetUniformLocation(shaderProgram.ID, "ambientColor"), 1, ambientColor);
             object->Draw(textureShader, *camera);
         }
     }

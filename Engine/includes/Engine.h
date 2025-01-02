@@ -62,6 +62,9 @@ private:
     color clearColor = {0.1f, 0.1f, 0.1f, 1.0f};
     float deltaTime = 0.0f, lastFrame = 0.0f;
 
+    float ambientIntensity = 0.1f;
+    float ambientColor[3] = {1.0f, 1.0f, 1.0f};
+
     ImTextureID LoadTextureFromFile(const std::string &filename);
 
     ImTextureID directoryIcon;

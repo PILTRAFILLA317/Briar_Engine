@@ -48,10 +48,10 @@ Mesh::Mesh(const std::string &name, const std::vector<SubMesh> &tempSubMeshes) :
         subMeshes[i].VAO.Bind();
         VBO vbo(subMeshes[i].vertices);
         EBO ebo(subMeshes[i].indices);
-        subMeshes[i].VAO.LinkAttrib(vbo, 0, 3, GL_FLOAT, sizeof(Vertex), (void *)0);
-        subMeshes[i].VAO.LinkAttrib(vbo, 1, 3, GL_FLOAT, 11 * sizeof(float), (void *)(6 * sizeof(float)));
-        subMeshes[i].VAO.LinkAttrib(vbo, 2, 2, GL_FLOAT, 11 * sizeof(float), (void *)(8 * sizeof(float)));
-        subMeshes[i].VAO.LinkAttrib(vbo, 3, 3, GL_FLOAT, 11 * sizeof(float), (void *)(11 * sizeof(float)));
+        subMeshes[i].VAO.LinkAttrib(vbo, 0, 3, GL_FLOAT, 11 * sizeof(float), (void *)(0));                 // position
+        subMeshes[i].VAO.LinkAttrib(vbo, 1, 3, GL_FLOAT, 11 * sizeof(float), (void *)(3 * sizeof(float))); // normal
+        subMeshes[i].VAO.LinkAttrib(vbo, 2, 3, GL_FLOAT, 11 * sizeof(float), (void *)(6 * sizeof(float))); // color
+        subMeshes[i].VAO.LinkAttrib(vbo, 3, 2, GL_FLOAT, 11 * sizeof(float), (void *)(9 * sizeof(float))); // texUV
         subMeshes[i].VAO.Unbind();
         vbo.Unbind();
         ebo.Unbind();
